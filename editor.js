@@ -21,8 +21,8 @@ editor.addEventListener('keydown', (ev) => {
 	if (ev.key.startsWith('Arrow')) {
 		ev.preventDefault()
 		switch (ev.key) {
-			case 'ArrowLeft': cursor.x--; limitCursorX(); cursor.desiredX = 0; break;
-			case 'ArrowRight': cursor.x++; limitCursorX(); cursor.desiredX = 0; break;
+			case 'ArrowLeft': cursor.x--; cursor.desiredX = 0; limitCursorX(); break;
+			case 'ArrowRight': cursor.x++; cursor.desiredX = 0; limitCursorX(); break;
 			case 'ArrowUp': cursor.y--; limitCursorY(); break;
 			case 'ArrowDown': cursor.y++; limitCursorY(); break;
 		}
@@ -31,14 +31,11 @@ editor.addEventListener('keydown', (ev) => {
 
 	if (ev.key.length === 1) {
 		insert(cursor.y, cursor.x, ev.key)
-		cursor.x++
 		render()
 	}
 
 	if (ev.key === 'Enter') {
 		newline(cursor.y, cursor.x)
-		cursor.x = 0
-		cursor.y++
 		render()
 	}
 
@@ -116,6 +113,7 @@ function insert(line, column, what) {
 	let left = content.slice(0, column)
 	let right = content.slice(column, content.length)
 	lines[line] = left + what + right
+	cursor.x++
 }
 
 // insert newline at (line, column)
@@ -126,6 +124,9 @@ function newline(line, column) {
 	let right = content.slice(column, content.length)
 	lines[line] = left
 	lines.splice(line + 1, 0, right)
+
+	cursor.x = 0
+	cursor.y++
 }
 
 // remove character to left at (line, column)
