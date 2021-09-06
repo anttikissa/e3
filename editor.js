@@ -44,7 +44,6 @@ editor.addEventListener('keydown', (ev) => {
 
 	if (ev.key === 'Backspace') {
 		backspace(cursor.y, cursor.x)
-		cursor.x--
 		render()
 	}
 
@@ -133,9 +132,21 @@ function newline(line, column) {
 function backspace(line, column) {
 	log(`backspace at (${line}, ${column})`)
 	let content = lines[line]
-	let left = content.slice(0, column - 1)
-	let right = content.slice(column, content.length)
-	lines[line] = left + right
+
+	if (cursor.x > 0) {
+		let left = content.slice(0, column - 1)
+		let right = content.slice(column, content.length)
+		lines[line] = left + right
+		cursor.x--
+	} else {
+		if (cursor.y === 0) {
+			return
+		}
+		cursor.x = lines[cursor.y - 1].length
+		lines[cursor.y - 1] += lines[cursor.y]
+		lines.splice(cursor.y, 1)
+		cursor.y--
+	}
 }
 
 function render() {
