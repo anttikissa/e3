@@ -8,6 +8,11 @@ editor.focus()
 let cursor = {
 	x: 0,
 	y: 0,
+	// if you moved up or down to a line that was narrower than the
+	// current current position, the previous position is saved in
+	// cursor.desiredX and restored when there is space again;
+	// desiredX = 0 means don't restore
+	desiredX: 0
 }
 
 editor.addEventListener('keydown', (ev) => {
@@ -16,8 +21,8 @@ editor.addEventListener('keydown', (ev) => {
 	if (ev.key.startsWith('Arrow')) {
 		ev.preventDefault()
 		switch (ev.key) {
-			case 'ArrowLeft': cursor.x--; limitCursorX(); break;
-			case 'ArrowRight': cursor.x++; limitCursorX(); break;
+			case 'ArrowLeft': cursor.x--; limitCursorX(); cursor.desiredX = 0; break;
+			case 'ArrowRight': cursor.x++; limitCursorX(); cursor.desiredX = 0; break;
 			case 'ArrowUp': cursor.y--; limitCursorY(); break;
 			case 'ArrowDown': cursor.y++; limitCursorY(); break;
 		}
@@ -89,9 +94,19 @@ function limitCursorY() {
 		cursor.y = lines.length - 1
 	}
 
-	// moved to a line that is shorter than where the cursor is?
+	// moved to a line that is narrower than cursor.x?
 	if (cursor.x > lines[cursor.y].length) {
+		// this ensures that cursor.desiredX remembers the rightmost
+		// position where the cursor was when we started to move
+		// vertically
+		cursor.desiredX = Math.max(cursor.desiredX, cursor.x)
 		cursor.x = lines[cursor.y].length
+	}
+
+	// and when the line gets wide again, restore the previous X
+	// position that was saved in cursor.desiredX
+	if (cursor.desiredX && cursor.desiredX <= lines[cursor.y].length) {
+		cursor.x = cursor.desiredX
 	}
 }
 
@@ -114,6 +129,7 @@ function newline(line, column) {
 	lines.splice(line + 1, 0, right)
 }
 
+// remove character to left at (line, column)
 function backspace(line, column) {
 	log(`backspace at (${line}, ${column})`)
 	let content = lines[line]
