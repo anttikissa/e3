@@ -1,0 +1,22 @@
+body {
+	background: #222;
+	color: #fff;
+	font-family: 'Source Code Pro';
+}
+
+* {
+	margin: 0;
+	box-sizing: border-box;
+}
+
+canvas {
+	border: 1px solid;
+	height: 600px;
+	width: 1280px;
+}
+
+canvas:focus {
+	border-color: red;
+	outline: none;
+}
+
