@@ -16,10 +16,10 @@ editor.addEventListener('keydown', (ev) => {
 	if (ev.key.startsWith('Arrow')) {
 		ev.preventDefault()
 		switch (ev.key) {
-			case 'ArrowLeft': cursor.x--; break;
-			case 'ArrowRight': cursor.x++; break;
-			case 'ArrowUp': cursor.y--; break;
-			case 'ArrowDown': cursor.y++; break;
+			case 'ArrowLeft': cursor.x--; limitCursorX(); break;
+			case 'ArrowRight': cursor.x++; limitCursorX(); break;
+			case 'ArrowUp': cursor.y--; limitCursorY(); break;
+			case 'ArrowDown': cursor.y++; limitCursorY(); break;
 		}
 		render()
 	}
@@ -51,12 +51,49 @@ editor.addEventListener('keyup', (ev) => {
 })
 
 let lines = fs.readFileSync('editor.js', 'utf8').split('\n')
+//let lines = fs.readFileSync('index.html', 'utf8').split('\n')
 
 // note that this contains the last line which is always empty,
 // if the line is properly formatted (ends with a newline)
 //log('lines', lines)
 
 let fontWidth
+
+// ensure correct cursor position after horizontal movement
+function limitCursorX() {
+	log('limitCursorX')
+
+	let currentLine = lines[cursor.y] || ''
+	// tried to go too left? go to previous line
+	if (cursor.x < 0) {
+		cursor.y--
+		let thatLine = lines[cursor.y]
+		cursor.x = thatLine ? thatLine.length : 0
+	} else if (cursor.x > currentLine.length) {
+		cursor.y++
+		cursor.x = 0
+	}
+
+	// call this since cursor.y might have changed due to code above
+	limitCursorY()
+}
+
+// ensure correct cursor position after vertical movement
+function limitCursorY() {
+	log('limitCursorY')
+	if (cursor.y < 0) {
+		cursor.y = 0
+	}
+
+	if (cursor.y > lines.length - 1) {
+		cursor.y = lines.length - 1
+	}
+
+	// moved to a line that is shorter than where the cursor is?
+	if (cursor.x > lines[cursor.y].length) {
+		cursor.x = lines[cursor.y].length
+	}
+}
 
 // insert string 'what' at (line, column)
 function insert(line, column, what) {
