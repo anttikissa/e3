@@ -21,21 +21,39 @@ editor.addEventListener('keydown', (ev) => {
 			case 'ArrowUp': cursor.y--; break;
 			case 'ArrowDown': cursor.y++; break;
 		}
+		render()
+	}
+
+	if (ev.key.length === 1) {
+		insert(cursor.y, cursor.x, ev.key)
+		cursor.x++
+		render()
 	}
 
 	render()
 })
 
-editor.addEventListener('keydown', (ev) => {
+editor.addEventListener('keyup', (ev) => {
 	log(ev.key, 'up')
-
-
 })
 
 let lines = fs.readFileSync('editor.js', 'utf8').split('\n')
-log('lines', lines)
+
+// note that this contains the last line which is always empty,
+// if the line is properly formatted (ends with a newline)
+//log('lines', lines)
 
 let fontWidth
+
+function insert(line, column, what) {
+	log(`insert "${what}" at (${line}, ${column})`)
+	let content = lines[line]
+	let left = content.slice(0, column)
+	let right = content.slice(column, content.length)
+	lines[line] = left + what + right
+
+	// TODO should this render?
+}
 
 function render() {
 	//
