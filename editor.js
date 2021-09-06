@@ -172,7 +172,7 @@ function render() {
 	//
 	ctx.clearRect(0, 0, editor.width, editor.height)
 
-	let xAdjust = scroll.x * lineHeight
+	let xAdjust = -scroll.x * lineHeight
 	let yAdjust = -scroll.y * lineHeight
 
 	//
@@ -188,18 +188,20 @@ function render() {
 	//
 	ctx.fillStyle = 'white'
 	let y = fontHeight
-	for (let line of lines) {
+
+	for (let i = 0; i < lines.length; i++) {
+		let line = lines[i]
 		let x = 0
+		let y = fontHeight + lineHeight * i
 		ctx.fillText(line, x + xAdjust, y + yAdjust)
-		y += lineHeight
 	}
 }
 
 render()
 
 function update(t) {
-	scroll.x = (1 + Math.sin(5 * t / 1000 - .5 * Math.PI)) * 10
-	scroll.y = (1 + Math.cos(7 * t / 1000)) * 4
+	scroll.x = (1 + Math.sin(0.5 * t / 1000 - .5 * Math.PI)) * 10
+	scroll.y = (1 + Math.cos(0.7 * t / 1000 - .5 * Math.PI)) * 4
 	render()
 	requestAnimationFrame(update)
 }
