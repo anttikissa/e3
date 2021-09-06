@@ -15,6 +15,11 @@ let cursor = {
 	desiredX: 0
 }
 
+let scroll = {
+	x: 0,
+	y: 0,
+}
+
 editor.addEventListener('keydown', (ev) => {
 	log(ev.key, 'down')
 
@@ -167,13 +172,16 @@ function render() {
 	//
 	ctx.clearRect(0, 0, editor.width, editor.height)
 
+	let xAdjust = scroll.x * lineHeight
+	let yAdjust = -scroll.y * lineHeight
+
 	//
 	// draw cursor
 	//
 	ctx.fillStyle = '#f80'
 	let cursorX = cursor.x * glyphWidth
 	let cursorY = cursor.y * lineHeight
-	ctx.fillRect(cursorX, cursorY, cursorWidth, lineHeight)
+	ctx.fillRect(cursorX + xAdjust, cursorY + yAdjust, cursorWidth, lineHeight)
 
 	//
 	// draw text
@@ -182,9 +190,19 @@ function render() {
 	let y = fontHeight
 	for (let line of lines) {
 		let x = 0
-		ctx.fillText(line, x, y)
+		ctx.fillText(line, x + xAdjust, y + yAdjust)
 		y += lineHeight
 	}
 }
 
 render()
+
+function update(t) {
+	scroll.x = (1 + Math.sin(5 * t / 1000 - .5 * Math.PI)) * 10
+	scroll.y = (1 + Math.cos(7 * t / 1000)) * 4
+	render()
+	requestAnimationFrame(update)
+}
+
+update(0)
+
