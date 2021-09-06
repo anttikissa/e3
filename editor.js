@@ -30,6 +30,13 @@ editor.addEventListener('keydown', (ev) => {
 		render()
 	}
 
+	if (ev.key === 'Enter') {
+		newline(cursor.y, cursor.x)
+		cursor.x = 0
+		cursor.y++
+		render()
+	}
+
 	render()
 })
 
@@ -45,14 +52,23 @@ let lines = fs.readFileSync('editor.js', 'utf8').split('\n')
 
 let fontWidth
 
+// insert string 'what' at (line, column)
 function insert(line, column, what) {
 	log(`insert "${what}" at (${line}, ${column})`)
 	let content = lines[line]
 	let left = content.slice(0, column)
 	let right = content.slice(column, content.length)
 	lines[line] = left + what + right
+}
 
-	// TODO should this render?
+// insert newline at (line, column)
+function newline(line, column) {
+	log(`insert newline at (${line}, ${column})`)
+	let content = lines[line]
+	let left = content.slice(0, column)
+	let right = content.slice(column, content.length)
+	lines[line] = left
+	lines.splice(line + 1, 0, right)
 }
 
 function render() {
