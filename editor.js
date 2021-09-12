@@ -101,13 +101,14 @@ function limitCursorY() {
 		// position where the cursor was when we started to move
 		// vertically
 		cursor.desiredX = Math.max(cursor.desiredX, cursor.x)
+		log('set cursor.desiredX', cursor.desiredX)
 		cursor.x = lines[cursor.y].length
 	}
 
 	// and when the line gets wide again, restore the previous X
 	// position that was saved in cursor.desiredX
-	if (cursor.desiredX && cursor.desiredX <= lines[cursor.y].length) {
-		cursor.x = cursor.desiredX
+	if (cursor.desiredX) {
+		cursor.x = Math.min(cursor.desiredX, lines[cursor.y].length)
 	}
 }
 
