@@ -21,7 +21,7 @@ let scroll = {
 }
 
 editor.addEventListener('keydown', (ev) => {
-	log(ev.key, 'down')
+//	log(ev.key, 'down')
 
 	if (ev.key.startsWith('Arrow')) {
 		ev.preventDefault()
@@ -53,7 +53,7 @@ editor.addEventListener('keydown', (ev) => {
 })
 
 editor.addEventListener('keyup', (ev) => {
-	log(ev.key, 'up')
+//	log(ev.key, 'up')
 })
 
 let lines = fs.readFileSync('editor.js', 'utf8').split('\n')
@@ -67,7 +67,7 @@ let fontWidth
 
 // ensure correct cursor position after horizontal movement
 function limitCursorX() {
-	log('limitCursorX')
+//	log('limitCursorX')
 
 	let currentLine = lines[cursor.y] || ''
 	// tried to go too left? go to previous line
@@ -86,7 +86,7 @@ function limitCursorX() {
 
 // ensure correct cursor position after vertical movement
 function limitCursorY() {
-	log('limitCursorY')
+//	log('limitCursorY')
 	if (cursor.y < 0) {
 		cursor.y = 0
 	}
@@ -164,6 +164,7 @@ function render() {
 	let lineHeight = 36
 	let fontHeight = 32
 	let cursorWidth = 4
+	let visibleLines = Math.ceil(editor.height / lineHeight)
 
 	ctx.font = `${fontWeight} ${fontHeight}px Source Code Pro`
 	let glyphWidth = ctx.measureText('x').width
@@ -176,11 +177,16 @@ function render() {
 	let xAdjust = -scroll.x * lineHeight
 	let yAdjust = -scroll.y * lineHeight
 
+	// -1 because lines.length - 1 is the last line to be rendered
+	// +1 because the number is converted from 0-based to 1-based number
+	let maxLineNumberLength = String(lines.length).length - 1 + 1
+	let textStartX = glyphWidth * (maxLineNumberLength + 1)
+
 	//
 	// draw cursor
 	//
 	ctx.fillStyle = '#f80'
-	let cursorX = cursor.x * glyphWidth
+	let cursorX = cursor.x * glyphWidth + textStartX
 	let cursorY = cursor.y * lineHeight
 	ctx.fillRect(cursorX + xAdjust, cursorY + yAdjust, cursorWidth, lineHeight)
 
@@ -190,19 +196,38 @@ function render() {
 	ctx.fillStyle = 'white'
 	let y = fontHeight
 
-	for (let i = 0; i < lines.length; i++) {
+	let start = 0
+	let end = start + visibleLines
+
+	// pad('x', 3') => '  x'
+	function pad(s, length) {
+		while (s.length < length) {
+			s = ' ' + s
+		}
+		return s
+	}
+
+//	log(`rendering lines ${start + 1} to ${end - 1 + 1}`)
+	for (let i = start; i < end; i++) {
 		let line = lines[i]
 		let x = 0
 		let y = fontHeight + lineHeight * i
-		ctx.fillText(line, x + xAdjust, y + yAdjust)
+		if (i === cursor.y) {
+			ctx.fillStyle = 'red'
+		} else {
+			ctx.fillStyle = 'white'
+		}
+
+		let lineText = pad(String(i + 1), maxLineNumberLength) + ' '
+		ctx.fillText(lineText + line, x + xAdjust, y + yAdjust)
 	}
 }
 
 render()
 
 function update(t) {
-	scroll.x = (1 + Math.sin(0.5 * t / 1000 - .5 * Math.PI)) * 10
-	scroll.y = (1 + Math.cos(0.7 * t / 1000 - .5 * Math.PI)) * 4
+//	scroll.x = (1 + Math.sin(0.5 * t / 1000 - .5 * Math.PI)) * 10
+//	scroll.y = (1 + Math.cos(0.7 * t / 1000 - .5 * Math.PI)) * 4
 	render()
 	requestAnimationFrame(update)
 }
