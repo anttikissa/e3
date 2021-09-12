@@ -31,6 +31,11 @@ editor.addEventListener('keydown', (ev) => {
 			case 'ArrowUp': cursor.y--; limitCursorY(); break;
 			case 'ArrowDown': cursor.y++; limitCursorY(); break;
 		}
+
+		// dummy scrolling
+		//scroll.y = cursor.y
+		//scroll.x = cursor.x
+
 		render()
 	}
 
@@ -49,7 +54,7 @@ editor.addEventListener('keydown', (ev) => {
 		render()
 	}
 
-	render()
+//	render()
 })
 
 editor.addEventListener('keyup', (ev) => {
@@ -223,11 +228,12 @@ function render() {
 	}
 }
 
-render()
+//render()
 
 function update(t) {
 //	scroll.x = (1 + Math.sin(0.5 * t / 1000 - .5 * Math.PI)) * 10
 //	scroll.y = (1 + Math.cos(0.7 * t / 1000 - .5 * Math.PI)) * 4
+//	scroll.y = 5
 	render()
 	requestAnimationFrame(update)
 }
