@@ -1,3 +1,4 @@
+// if you moved up or down to a line that was narrower than the current current position, the previous position is saved in
 let log = console.log
 let fs = require('fs')
 
@@ -32,8 +33,7 @@ editor.addEventListener('keydown', (ev) => {
 			case 'ArrowDown': cursor.y++; limitCursorY(); break;
 		}
 
-		// dummy scrolling
-		scroll.y = cursor.y
+		scrollY()
 		//scroll.x = cursor.x
 
 		render()
@@ -117,6 +117,27 @@ function limitCursorY() {
 	}
 }
 
+// ensure scrolling follows cursor by maintaining scroll.y such that
+// cursorPosScreen is in [0, totallyVisibleLines[
+function scrollY() {
+//	log('scrollY')
+
+	let cursorPosScreen
+
+	// forget complicated math, just nudge scroll pos into the right
+	// direction until we get what we want
+	while (true) {
+		cursorPosScreen = cursor.y - scroll.y
+		if (cursorPosScreen < 0) {
+			scroll.y--
+		} else if (cursorPosScreen > totallyVisibleLines - 1) {
+			scroll.y++
+		} else {
+			break
+		}
+	}
+}
+
 // insert string 'what' at (line, column)
 function insert(line, column, what) {
 	log(`insert "${what}" at (${line}, ${column})`)
@@ -161,16 +182,22 @@ function backspace(line, column) {
 	}
 }
 
-function render() {
-	//
-	// settings
-	//
-	let fontWeight = 300
-	let lineHeight = 36
-	let fontHeight = 32
-	let cursorWidth = 4
-	let visibleLines = Math.ceil(editor.height / lineHeight)
+//
+// settings
+//
 
+let fontWeight = 300
+let lineHeight = 36
+let fontHeight = 32
+let cursorWidth = 4
+// visibleLines is the amount of lines that are at least partially
+// visible; this many must be rendered so we can see everything
+let visibleLines = Math.ceil(editor.height / lineHeight)
+// totallyVisibleLines is the amount of lines that are 100% visible;
+// we want to ensure that the cursor is one one of these lines
+let totallyVisibleLines = Math.floor(editor.height / lineHeight)
+
+function render() {
 	ctx.font = `${fontWeight} ${fontHeight}px Source Code Pro`
 	let glyphWidth = ctx.measureText('x').width
 
@@ -212,7 +239,7 @@ function render() {
 		return s
 	}
 
-	log(`rendering lines ${start + 1} to ${end - 1 + 1}`)
+//	log(`rendering lines ${start + 1} to ${end - 1 + 1}`)
 	for (let i = start; i < end; i++) {
 		let line = lines[i]
 		let x = 0
