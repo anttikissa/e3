@@ -33,7 +33,7 @@ editor.addEventListener('keydown', (ev) => {
 		}
 
 		// dummy scrolling
-		//scroll.y = cursor.y
+		scroll.y = cursor.y
 		//scroll.x = cursor.x
 
 		render()
@@ -201,7 +201,7 @@ function render() {
 	ctx.fillStyle = 'white'
 	let y = fontHeight
 
-	let start = 0
+	let start = scroll.y
 	let end = start + visibleLines
 
 	// pad('x', 3') => '  x'
@@ -212,7 +212,7 @@ function render() {
 		return s
 	}
 
-//	log(`rendering lines ${start + 1} to ${end - 1 + 1}`)
+	log(`rendering lines ${start + 1} to ${end - 1 + 1}`)
 	for (let i = start; i < end; i++) {
 		let line = lines[i]
 		let x = 0
